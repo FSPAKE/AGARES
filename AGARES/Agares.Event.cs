@@ -96,19 +96,22 @@ namespace FSPAKE.AGARES.CoreSystem
         private string LastVideoId;
         private async void GetStart_ClickAsync(object sender, EventArgs e)
         {
-            GetStart.Visible = false;
 
             if (LiveID.Text != LastLiveId)
             {
                 VideoInfo = await GetVideinfo();
-                LastLiveId = LiveID.Text;
-                if (VideoInfo.Id != LastVideoId) { Clear(); }
-                LastVideoId = VideoInfo.Id;
+                if (!(VideoInfo is null))
+                {
+                    LastLiveId = LiveID.Text;
+                    if (VideoInfo.Id != LastVideoId) { Clear(); }
+                    LastVideoId = VideoInfo.Id;
+                }
             }
-            if (VideoInfo is null) { return; }
             if (!LiveStateCheck(VideoInfo)) { return; }
 
             if (!LiveChatStateCheck(VideoInfo.LiveStreamingDetails.ActiveLiveChatId)) { return; }
+            
+            GetStart.Visible = false;
 
             if (LiveChatId != VideoInfo.LiveStreamingDetails.ActiveLiveChatId)
             {
@@ -122,9 +125,8 @@ namespace FSPAKE.AGARES.CoreSystem
             //PostCommentBoxPanel.Visible = true;//コメント投稿機能は実装を取りやめる
 
             IsGetChat = true;
-
             GetStop.Visible = true;
-            GetStart.Visible = false; //マルチスレッド実行時、別スレッドでtrueになる場合があるため再度falseを設定する
+
 
             while (IsGetChat)
             {
@@ -194,6 +196,7 @@ namespace FSPAKE.AGARES.CoreSystem
             {
                 try
                 {
+                    Thumb.Image = null;
                     return await YouTubeAPIManager.GetVideoInfoAsync(LiveID.Text).ConfigureAwait(true);
                 }
                 catch (GoogleApiException)
@@ -207,6 +210,7 @@ namespace FSPAKE.AGARES.CoreSystem
                     }
                     else
                     {
+                        Thumb.Image = null;
                         return null;
                     }
                 }
@@ -570,36 +574,6 @@ namespace FSPAKE.AGARES.CoreSystem
                 }
             }
             Comments.Refresh();
-        }
-
-        private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
-        {
-
-        }
-
-        private async void button1_Click(object sender, EventArgs e)
-        {
-            var liveChatMessage = new LiveChatMessage
-            {
-                AuthorDetails = new LiveChatMessageAuthorDetails
-                {
-                    ChannelId = "aa",
-                    DisplayName = "FSP AKE",
-                    IsChatModerator = false,
-                    IsChatOwner = false,
-                    IsChatSponsor = false,
-                    ProfileImageUrl = "https://www.youtube.com/watch?v=wXnrsTGbVmA"
-                },
-                Snippet = new LiveChatMessageSnippet
-                {
-                    AuthorChannelId = "xxx",
-                    DisplayMessage = ":えもじにじれじ:",
-                    LiveChatId = "fsjkl"
-                }
-            };
-
-            var liveChatFieldAccesser = new LiveChatFieldAccesser(liveChatMessage);
-            await MainProcessAsync(liveChatFieldAccesser);
         }
     }
 }

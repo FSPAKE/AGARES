@@ -36,6 +36,9 @@ namespace FSPAKE.AGARES.CoreSystem
 
         private async Task TransformBaelAsync()
         {
+            UserCredential = await NewCredentialAsync(ClientSecletFilename).ConfigureAwait(true);
+            if (UserCredential is null) { return; }
+
             this.Text = "BAEL - Ban Auto Executioner on Livestream - ";
             CommentsPanel.Left = SuperChatReviewPanel.Left;
             CommentsPanel.Width = SuperChatReviewPanel.Width;
@@ -43,7 +46,6 @@ namespace FSPAKE.AGARES.CoreSystem
             AgaresToolStripMenuItem.Visible = true;
             BaelToolStripMenuItem.Visible = false;
             自動BANルール設定ToolStripMenuItem.Visible = true;
-            UserCredential = await NewCredentialAsync(ClientSecletFilename).ConfigureAwait(true);
         }
     }
 }
